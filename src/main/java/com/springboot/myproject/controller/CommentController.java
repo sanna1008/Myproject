@@ -33,6 +33,15 @@ public class CommentController {
 	
 	@PostMapping("/add")
 	public ResponseEntity<String> addComment(@RequestBody CommentRequest request) {
+		 // Validate user names
+        if (!isValidUserName(request.getCommentFrom()) || !isValidUserName(request.getCommentTo())) {
+            return ResponseEntity.badRequest().body("Invalid Request: User names should not contain special characters, numbers, or symbols.");
+        }
+
+        // Validate user names are not empty or blank
+        if (isBlankOrEmpty(request.getCommentFrom()) || isBlankOrEmpty(request.getCommentTo())) {
+            return ResponseEntity.badRequest().body("Invalid Request: User names should not be empty or blank.");
+        }
 		try {
             String result = commentService.addComment(request);
             return ResponseEntity.ok(result);
@@ -58,4 +67,13 @@ public class CommentController {
 
         return ResponseEntity.ok(comments);
 	}
+	private boolean isValidUserName(String userName) {
+        // Regular expression to match names containing only letters and spaces
+        String regex = "^[a-zA-Z ]+$";
+        return userName.matches(regex);
+    }
+
+    private boolean isBlankOrEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
 }
